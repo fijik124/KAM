@@ -1,15 +1,15 @@
 // UI stuff
-#define KAT_GUI_GRID_W (safezoneW * 0.55)
+#define KAT_GUI_GRID_W (safeZoneW * 0.55)
 #define KAT_GUI_GRID_H (KAT_GUI_GRID_W * 4/3)
-#define KAT_GUI_GRID_X (safezoneX + (safezoneW - KAT_GUI_GRID_W) / 2)
-#define KAT_GUI_GRID_Y (safezoneY + (safezoneH - KAT_GUI_GRID_H) / 2)
+#define KAT_GUI_GRID_X (safeZoneX + (safeZoneW - KAT_GUI_GRID_W) / 2)
+#define KAT_GUI_GRID_Y (safeZoneY + (safeZoneH - KAT_GUI_GRID_H) / 2)
 
 #define KAT_pxToScreen_X(X) (X / 2048 * KAT_GUI_GRID_W + KAT_GUI_GRID_X)
 #define KAT_pxToScreen_Y(X) (X / 2048 * KAT_GUI_GRID_H + KAT_GUI_GRID_Y)
 #define KAT_pxToScreen_W(X) (X / 2048 * KAT_GUI_GRID_W)
 #define KAT_pxToScreen_H(X) (X / 2048 * KAT_GUI_GRID_H)
 
-#define KAT_GRID_H ((((safezoneW / safezoneH) min 1.2) / 1.2) / 22)
+#define KAT_GRID_H ((((safeZoneW / safeZoneH) min 1.2) / 1.2) / 22)
 
 #define IDC_AEDX_MONITOR            70000
 #define IDC_EKG_SLIDER              70010
@@ -61,3 +61,25 @@
 #define IDC_CHARGE_BAR_120          70058
 #define IDC_CHARGE_BAR_150          70059
 #define IDC_CHARGE_BAR_200          70060
+
+#define IDC_AEDX_MONITOR_TITLE            71000
+#define IDC_EKG_SLIDER_TITLE              71001
+#define IDC_DISPLAY_HEARTRATE_TITLE       71002
+#define IDC_DISPLAY_HEARTRATE_TEXT_TITLE  71003
+#define IDC_DISPLAY_BLOODPRESSURE_T_TITLE 71004
+#define IDC_DISPLAY_BLOODPRESSURE_B_TITLE 71005
+#define IDC_DISPLAY_BLOODPRESSURE_M_TITLE 71006
+#define IDC_DISPLAY_RESP_TITLE            71007
+#define IDC_DISPLAY_SPO2_TITLE            71008
+#define IDC_DISPLAY_PULSERATEBORDER_TITLE 71009
+#define IDC_DISPLAY_PULSERATEBG_TITLE     71010
+#define IDC_DISPLAY_PULSERATEDSPBAR_TITLE 71011
+#define IDC_DISPLAY_PULSERATEBAR_TITLE    71012
+#define IDC_DISPLAY_DATEANDTIME_TITLE     71013
+#define IDC_DISPLAY_ELAPSEDTIME_TITLE     71014
+#define IDC_EKG_DISPLAY_TITLE             71015
+#define IDC_EKG_DISPLAY_MIDTEXT_TITLE     71016
+#define IDC_SHOCKBUTTON_TITLE             71017
+#define IDC_AEDMODE_MSG_BG_TITLE          71018
+#define IDC_AEDMODE_MSG_TOP_TITLE         71019
+#define IDC_AEDMODE_MSG_TITLE             71020

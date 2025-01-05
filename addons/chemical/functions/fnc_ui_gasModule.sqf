@@ -1,6 +1,6 @@
 #include "..\script_component.hpp"
 /*
- * Author: DiGii
+ * Author: DiGii, MiszczuZPolski
  * Creates the UI for the Zeus Module
  *
  * Arguments:
@@ -10,7 +10,7 @@
  * NONE
  *
  * Example:
- * [1105] call kat_chemical_fnc_spawnGasSmoke;
+ * [1105] call kat_chemical_fnc_ui_gasModule;
  *
  * Public: No
 */
@@ -18,29 +18,11 @@
 params ["_control"];
 
 private _display = ctrlParent _control;
-private _ctrlButtonOK = _display displayCtrl IDC_OK;
-private _ctrlButtonCancel = _display displayCtrl IDC_CANCEL;
-private _logic = missionNamespace getVariable["BIS_fnc_initCuratorAttributes_target",objNull];
-
+private _ctrlButtonOK = _display displayCtrl 1;
+private _ctrlButtonCancel = _display displayCtrl 2;
+private _logic = GETMVAR(BIS_fnc_initCuratorAttributes_target,objNull);
 
 _control ctrlRemoveAllEventHandlers "SetFocus";
-
-
-private _fnc_onUnload = {
-    private _logic = missionNamespace getVariable["BIS_fnc_initCuratorAttributes_target",objNull];
-    if (isNull _logic) exitWith {};
-    if !(_display getVariable [QGVAR(Confirmed), false]) then
-    {
-        if !(isNull attachedTo _logic) then
-        {
-            deleteVehicle _logic;
-        } else
-        {
-            detach (attachedTo _logic);
-            deleteVehicle _logic;
-        };
-    };
-};
 
 scopeName "Main";
 private _fnc_errorAndClose = {
@@ -65,7 +47,20 @@ if !(isNull attachedTo _logic) then {
         };
         default {};
     };
+};
 
+private _fnc_onUnload = {
+    private _logic = GETMVAR(BIS_fnc_initCuratorAttributes_target,objNull);
+    if (isNull _logic) exitWith {};
+    if !(_display getVariable [QGVAR(Confirmed), false]) then
+    {
+        if !(isNull attachedTo _logic) then {
+            deleteVehicle _logic;
+        } else {
+            detach (attachedTo _logic);
+            deleteVehicle _logic;
+        };
+    };
 };
 
 private _fnc_onConfirm = {
@@ -74,48 +69,35 @@ private _fnc_onConfirm = {
     private _display = ctrlParent _ctrlButtonOK;
     if (isNull _display) exitWith {};
 
-    private _logic = missionNamespace getVariable ["BIS_fnc_initCuratorAttributes_target",objNull];
+    private _logic = GETMVAR(BIS_fnc_initCuratorAttributes_target,objNull);
     if (isNull _logic) exitWith {};
 
-    private _gasTypeValue = _display getVariable[QGVAR(ui_gastype),0];
-    private _gastype = "";
-    switch (_gasTypeValue) do {
-        case 1: { //CS
-            _gastype = "CS";
-        };
-        default { //toxic gas (default)
-            _gastype = "Toxic";
-        };
-    };
+    private _gasLevel = _display getVariable [QGVAR(ui_gastype), 0];
+    private _radius = _display getVariable [QGVAR(ui_radius), 20];
+    private _isSealable = _display getVariable [QGVAR(ui_sealable), false];
+    private _center = objNull;
 
-    private _radius_max = _display getVariable [QGVAR(ui_radiusMax), 20];
-    private _radius_min = _display getVariable [QGVAR(ui_radiusMin), 10];
-    if(_radius_min > _radius_max) then {
-        [CSTRING(GasModule_Needbigger)] call ACEFUNC(zeus,showMessage);
+    if (isNull attachedTo _logic) then {
+        _center = _logic;
     } else {
-        private _logic = missionNamespace getVariable ["BIS_fnc_initCuratorAttributes_target",objNull];
-        if (isNull _logic) exitWith {};
+        _center = attachedTo _logic;
+    };
 
-        if !(isNull attachedTo _logic) then {
-            private _object = attachedto _logic;
-            private _position = getPos _object;
+    [QGVAR(addGasSource), [_center, _radius, _gasLevel, _logic, {
+        params ["_endTime", "_logic"];
 
-            [_logic,_position,_radius_max,_radius_min,_gastype] call FUNC(gasCheck);
-
-            if (_display getVariable[QGVAR(ui_sealable),false]) then {
-                [_object] call FUNC(createSealAction);
-            };
-
-        } else {
-            private _position = getPos _logic;
-            [_logic,_position,_radius_max,_radius_min,_gastype] call FUNC(gasCheck);
+        // If logic no longer exists, exit
+        if (isNull _logic) exitWith {
+            false // return
         };
 
-        _display setVariable [QGVAR(Confirmed), true];
-    };
+        CBA_missionTime < _endTime // return
+    }, [CBA_missionTime + 1e10, _logic], _isSealable]] call CBA_fnc_serverEvent;
+
+    _display setVariable [QGVAR(Confirmed), true];
+
 };
 
-
-_display displayAddEventHandler ["unload", _fnc_onUnload];
-_ctrlButtonOK ctrlAddEventHandler ["buttonclick", _fnc_onConfirm];
+_display displayAddEventHandler ["Unload", _fnc_onUnload];
+_ctrlButtonOK ctrlAddEventHandler ["ButtonClick", _fnc_onConfirm];
 

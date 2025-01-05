@@ -4,11 +4,22 @@ class CfgVehicles {
     class kat_PulseoximeterItem: Item_Base_F {
         scope = 2;
         scopeCurator = 2;
-        displayName= CSTRING(Pulseoximeter_Desc_Short);
+        displayName= CSTRING(Pulseoximeter);
         author = "Katalam";
         vehicleClass = "Items";
         class TransportItems {
             MACRO_ADDITEM(kat_Pulseoximeter,1);
+        };
+    };
+
+    class kat_nasalItem: Item_Base_F {
+        scope = 2;
+        scopeCurator = 2;
+        displayName= CSTRING(NasalCannula_Display);
+        author = "apo_tle";
+        vehicleClass = "Items";
+        class TransportItems {
+            MACRO_ADDITEM(kat_nasal,1);
         };
     };
 
@@ -36,6 +47,7 @@ class CfgVehicles {
             MACRO_ADDITEM(kat_stethoscope,5);
             MACRO_ADDITEM(kat_BVM,5);
             MACRO_ADDITEM(kat_pocketBVM,5);
+            MACRO_ADDITEM(kat_nasal,10);
         };
         class TransportMagazines: TransportMagazines {
             MACRO_ADDMAGAZINE(kat_oxygenTank_150,2);
@@ -114,6 +126,24 @@ class CfgVehicles {
                     condition = QUOTE((GVAR(locationProvideOxygen) in [ARR_2(2,3)]) && 'kat_oxygenTank_300_Empty' in (items _player) && _player call ACEFUNC(medical_treatment,isInMedicalFacility));
                     statement = QUOTE([ARR_3(_player,'kat_oxygenTank_300',GVAR(PortableOxygenTank_RefillTime)*2)] call FUNC(refillOxygenTank));
                 };
+                class Attach_PersonalOxygen {
+                    displayName = CSTRING(AttachPersonalOxygenTank);
+                    condition = QUOTE(([ARR_2(_player,'kat_personal_oxygen')] call ACEFUNC(common,hasMagazine)) && (_player call FUNC(checkOxygenMask)));
+                    statement = QUOTE(_player call FUNC(attachPersonalOxygen));
+                    showDisabled = 0;
+                    exceptions[] = {"isNotSwimming", "isNotOnLadder"};
+                    icon = QPATHTOF(ui\oxygenTank_ui.paa);
+                };
+                class Detach_PersonalOxygen: Attach_PersonalOxygen {
+                    displayName = CSTRING(RemovePersonalOxygenTank);
+                    condition = QUOTE(_player getVariable [ARR_2(QQGVAR(oxygenMaskActive),false)]);
+                    statement = QUOTE(_player call FUNC(detachPersonalOxygen));
+                };
+                class Check_PersonalOxygen: Attach_PersonalOxygen {
+                    displayName = CSTRING(CheckPersonalOxygenTank);
+                    condition = QUOTE(_player getVariable [ARR_2(QQGVAR(oxygenMaskActive),false)]);
+                    statement = QUOTE(_player call FUNC(checkPersonalOxygen));
+                };
             };
         };
     };
@@ -137,6 +167,33 @@ class CfgVehicles {
                         statement = QUOTE([ARR_3(_player,'kat_oxygenTank_300',GVAR(PortableOxygenTank_RefillTime)*2)] call FUNC(refillOxygenTank));
                     };
                 };
+            };
+        };
+    };
+
+    class Air;
+    class Helicopter: Air {
+        class ACE_SelfActions {
+            class KAT_AttachOxygenVehicle {
+                displayName = CSTRING(AttachOxygenVehicle);
+                condition = QUOTE((_player call FUNC(checkAircraftOxygen)) && (_player call FUNC(checkOxygenMask)));
+                statement = QUOTE(_player call FUNC(attachVehicleOxygen));
+                insertChildren = "";
+                exceptions[] = {};
+                icon = QACEPATHTOF(medical_gui,ui\cross.paa);
+            };
+        };
+    };
+
+    class Plane: Air {
+        class ACE_SelfActions {
+            class KAT_AttachOxygenVehicle {
+                displayName = CSTRING(AttachOxygenVehicle);
+                condition = QUOTE((_player call FUNC(checkAircraftOxygen)) && (_player call FUNC(checkOxygenMask)));
+                statement = QUOTE(_player call FUNC(attachVehicleOxygen));
+                insertChildren = "";
+                exceptions[] = {};
+                icon = QACEPATHTOF(medical_gui,ui\cross.paa);
             };
         };
     };

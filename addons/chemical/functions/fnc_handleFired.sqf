@@ -25,27 +25,29 @@
 params ["_vehicle", "", "", "", "_ammo", "_magazine", "_projectile"];
 
 // Large enough distance to not simulate any wind deflection
-if (_vehicle distance ACE_player > 8000) exitwith {
-    false
-};
+if (_vehicle distance ACE_player > 8000) exitWith {};
 
-if !(_ammo in KAT_ProjectileCache) exitwith {};
+if !(_ammo in KAT_ProjectileCache) exitWith {};
 
 private _configClass = (configFile >> "CfgAmmo" >> _ammo);
 
 private _lifetime = [_configClass, "KAT_lifetime", 60] call BIS_fnc_returnConfigEntry;
 private _radius = [_configClass, "KAT_radius", 10] call BIS_fnc_returnConfigEntry;
-private _gasLvL = [_configClass, "KAT_toxicLvL", 1] call BIS_fnc_returnConfigEntry;
+private _gasLevel = [_configClass, "KAT_toxicLvL", 1] call BIS_fnc_returnConfigEntry;
 
 [{
-    params["_args", "_handler"];
-    _args params ["_projectile", "_posarr", "_gasinfo"];
-    _gasinfo params ["_lifetime", "_radius", "_gasLvL"];
-    if (!isNull _projectile) exitwith {
-        _args set [1, getPos _projectile];
+    params ["_args", "_handler"];
+    _args params ["_projectile", "_gasInfo"];
+    _gasInfo params ["_lifetime", "_radius", "_gasLeveL"];
+
+    if (isNull _projectile || {!alive _projectile}) exitWith {
+        [_handler] call CBA_fnc_removePerFrameHandler;
     };
 
-    [_posarr, _lifetime, _radius, _gasLvL] call FUNC(createZone);
+    [QGVAR(addGasSource), [_projectile, _radius, _gasLevel, _projectile, {
+        params ["_endTime"];
 
-    [_handler] call CBA_fnc_removePerFrameHandler;
-}, 0, [_projectile, [0, 0, 0], [_lifetime, _radius, _gasLvL]]] call CBA_fnc_addPerFrameHandler;
+        CBA_missionTime < _endTime // return
+    }, [CBA_missionTime + _lifetime]]] call CBA_fnc_serverEvent;
+
+}, 0, [_projectile, [_lifetime, _radius, _gasLevel]]] call CBA_fnc_addPerFrameHandler;

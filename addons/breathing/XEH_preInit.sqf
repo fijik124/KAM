@@ -18,6 +18,31 @@ PREP_RECOMPILE_END;
     true
 ] call CBA_Settings_fnc_init;
 
+//Adds available oxygen masks
+[
+    QGVAR(availOxyMask),
+    "EDITBOX",
+    [LLSTRING(SETTING_AVAIL_OXYMASK), LLSTRING(SETTING_AVAIL_OXYMASK_DISC)],
+    [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
+    "'kat_mask_solr'",
+    1,
+    {
+        private _array = [_this, "CfgGlasses"] call EFUNC(chemical,getList);
+        missionNamespace setVariable [QGVAR(availOxyMaskList), _array, true];
+    },
+    true
+] call CBA_Settings_fnc_init;
+
+//Enable Check Breathing medical action
+[
+    QGVAR(enableCheckBreathing),
+    "CHECKBOX",
+    [LLSTRING(SETTING_enableCheckBreathing),LLSTRING(SETTING_enableCheckBreathing_DESC)],
+    [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
+    [true],
+    true
+] call CBA_Settings_fnc_init;
+
 // Lethal SpO2 value
 [
     QGVAR(SpO2_dieValue),
@@ -118,6 +143,15 @@ PREP_RECOMPILE_END;
     true
 ] call CBA_Settings_fnc_init;
 
+[
+    QGVAR(paco2Active),
+    "CHECKBOX",
+    [LLSTRING(SETTING_PACO2_ENABLE), LLSTRING(SETTING_PACO2_ENABLE_DESC)],
+    [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
+    [false],
+    true
+] call CBA_Settings_fnc_init;
+
 //Settable list for using Pulseoximeter per medical class
 [
     QGVAR(medLvl_Pulseoximeter),
@@ -137,6 +171,26 @@ PREP_RECOMPILE_END;
     [[0, 1, 2], ["STR_ACE_Medical_Treatment_Anyone", "STR_ACE_Medical_Treatment_Medics", "STR_ACE_Medical_Treatment_Doctors"], 0],
     true
 ] call CBA_settings_fnc_init;
+
+//Settable list for using Nasal Cannula per medical class
+[
+    QGVAR(medLvl_NasalCannula),
+    "LIST",
+    [LLSTRING(SETTING_Allow_NasalCannula),LLSTRING(SETTING_Allow_NasalCannula_Desc)],
+    [CBA_SETTINGS_CAT, LSTRING(SubCategory_Items)],
+    [[0, 1, 2], ["STR_ACE_Medical_Treatment_Anyone", "STR_ACE_Medical_Treatment_Medics", "STR_ACE_Medical_Treatment_Doctors"], 0],
+    true
+] call CBA_settings_fnc_init;
+
+// Settable action time for Nasal Cannula
+[
+    QGVAR(NasalCannula_time),
+    "SLIDER",
+    [LLSTRING(SETTING_Time_NasalCannula),LLSTRING(SETTING_Time_NasalCannula_Desc)],
+    [CBA_SETTINGS_CAT, LSTRING(SubCategory_Items)],
+    [1, 10, 3, 0],
+    true
+] call CBA_Settings_fnc_init;
 
 //Allow ChestSeal SelfTreatment
 [
@@ -399,16 +453,6 @@ PREP_RECOMPILE_END;
     true
 ] call CBA_Settings_fnc_init;
 
-//Enables White Flashing on Below 90% SPO2
-[
-    QGVAR(enableSPO2Flashing),
-    "CHECKBOX",
-    [LLSTRING(SETTING_SPO2Flashing_display), LLSTRING(SETTING_SPO2Flashing_DESC)],
-    [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
-    [true],
-    true
-] call CBA_Settings_fnc_init;
-
 //Enable stamina loss by low SPO2
 [
     QGVAR(staminaLossAtLowSPO2),
@@ -419,15 +463,25 @@ PREP_RECOMPILE_END;
     true
 ]   call CBA_Settings_fnc_init;
 
-//low SPO2 Warning Level
+// enable/disable etco2 and respiratory rate readouts
 [
-    QGVAR(lowSPO2Level),
-    "SLIDER",
-    [LLSTRING(SETTING_lowSPO2Level_display), LLSTRING(SETTING_lowSPO2Level_DESC)],
+    QGVAR(Etco2_Enabled),
+    "CHECKBOX",
+    [LLSTRING(SETTING_Enable_Etco2),LLSTRING(SETTING_Enable_Etco2_Desc)],
     [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
-    [0, 100, 90, 1],
+    [true],
     true
 ] call CBA_Settings_fnc_init;
+
+// select units for etco2
+[
+    QGVAR(Etco2_Units),
+    "LIST",
+    LLSTRING(SETTING_Select_Etco2_Units),
+    [CBA_SETTINGS_CAT, ELSTRING(GUI,SubCategory_Basic)],
+    [[0, 1], ["mmHg", "kPa"], 0],
+    true
+] call CBA_settings_fnc_init;
 
 // Sets sound volume of stethoscope
 [
@@ -503,7 +557,7 @@ PREP_RECOMPILE_END;
     true
 ] call CBA_settings_fnc_init;
 
-// Sets whether medical facilites and/or vehicles provide direct oxygen and refill capability 
+// Sets whether medical facilites and/or vehicles provide direct oxygen and refill capability
 [
     QGVAR(locationProvideOxygen),
     "LIST",
